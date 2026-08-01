@@ -2,4 +2,5 @@
 bin
 obj
 *.sln
+__pycache__
 Randomizer/Sayonara Wild Hearts_Data
