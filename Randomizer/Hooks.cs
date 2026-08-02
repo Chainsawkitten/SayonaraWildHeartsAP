@@ -47,16 +47,18 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGScoreHandler_ReportEvent(SCOREEVENT nEventID, int nUserData, bool bPopup, Vector3 vScreenPos, SGScoreHandler __instance)
     {
+        int currentLevelIndex = SGFW.GameLogic().GetCurrentLevelIndex();
+
         switch (nEventID)
         {
             case SCOREEVENT.SECRETBANANA:
-                Plugin.Logger.LogInfo("Collected secret banana");
+                Plugin.locations.CollectCoin(currentLevelIndex, nUserData);
                 break;
             case SCOREEVENT.RESPAWN:
                 Plugin.Logger.LogInfo("Respawn");
                 break;
             case SCOREEVENT.LEVELCLEAR:
-                Plugin.Logger.LogInfo("Level clear");
+                Plugin.locations.ClearLevel(currentLevelIndex);
                 break;
         }
 

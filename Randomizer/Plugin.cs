@@ -15,6 +15,7 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Logger;
     public static Version randomizerVersion = new Version(MyPluginInfo.PLUGIN_VERSION);
     public static MultiWorld multiWorld = null;
+    public static Locations locations = null;
 
     private bool debug = true;
     private KeyboardShortcut deathKey = new(KeyCode.D);
@@ -38,6 +39,7 @@ public class Plugin : BaseUnityPlugin
 
         // TODO: Don't hardcode login info.
         multiWorld = new MultiWorld("localhost", 38281, "Sayonara", "");
+        locations = new Locations(multiWorld);
     }
 
     private void Update()
