@@ -5,9 +5,6 @@ using HarmonyLib;
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static Rewired.Platforms.Switch.NintendoSwitchInputManager;
-using static SGGameLogic;
-using static SGScoreHandler;
 
 namespace SayonaraWildHeartsRandomizer;
 
@@ -28,7 +25,7 @@ public class Plugin : BaseUnityPlugin
 
         try
         {
-            Harmony.CreateAndPatchAll(typeof(Plugin));
+            Harmony.CreateAndPatchAll(typeof(Hooks));
         }
         catch (Exception e)
         {
@@ -81,60 +78,5 @@ public class Plugin : BaseUnityPlugin
         {
             PrintGameObject(gameObject.transform.GetChild(i).gameObject, depth + 1);
         }
-    }
-
-    [HarmonyPatch(typeof(SGMenuHandler), "UpdateLevelPageIndicators")]
-    [HarmonyPrefix]
-    public static bool Prefix_SGMenuHandler_UpdateLevelPageIndicators(SGMenuHandler.MENUPAGE hMenuPage, SGMenuHandler __instance) {
-        Logger.LogInfo("UpdateLevelPageIndicators");
-        return true;
-    }
-
-    [HarmonyPatch(typeof(SGMenuHandler), "UnlockNextLevel")]
-    [HarmonyPrefix]
-    public static bool Prefix_SGMenuHandler_UnlockNextLevel(SGMenuHandler __instance)
-    {
-        Logger.LogInfo("UnlockNextLevel");
-        return true;
-    }
-
-    [HarmonyPatch(typeof(SGGameLogic.MainLogic), "GotoGameViewState")]
-    [HarmonyPrefix]
-    public static bool Prefix_SGGameLogic_MainLogic_GotoGameViewState(GAMEVIEWSTATE nState, SGGameLogic.MainLogic __instance)
-    {
-        switch (nState)
-        {
-            case GAMEVIEWSTATE.LEVELEND:
-                Logger.LogInfo("Level end");
-                break;
-            case GAMEVIEWSTATE.IMPACT:
-            case GAMEVIEWSTATE.FALL:
-                Logger.LogInfo("Death");
-                break;
-            default:
-                break;
-        }
-
-        return true;
-    }
-
-    [HarmonyPatch(typeof(SGScoreHandler), "ReportEvent", [typeof(SCOREEVENT), typeof(int), typeof(bool), typeof(Vector3)])]
-    [HarmonyPrefix]
-    public static bool Prefix_SGScoreHandler_ReportEvent(SCOREEVENT nEventID, int nUserData, bool bPopup, Vector3 vScreenPos, SGScoreHandler __instance)
-    {
-        switch (nEventID)
-        {
-            case SCOREEVENT.SECRETBANANA:
-                Logger.LogInfo("Collected secret banana");
-                break;
-            case SCOREEVENT.RESPAWN:
-                Logger.LogInfo("Respawn");
-                break;
-            case SCOREEVENT.LEVELCLEAR:
-                Logger.LogInfo("Level clear");
-                break;
-        }
-
-        return true;
     }
 }
