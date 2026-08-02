@@ -1,4 +1,3 @@
-using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
 using static SGGameLogic;
@@ -6,7 +5,7 @@ using static SGScoreHandler;
 
 namespace SayonaraWildHeartsRandomizer;
 
-class Hooks
+public class Hooks
 {
     [HarmonyPatch(typeof(SGMenuHandler), "UpdateLevelPageIndicators")]
     [HarmonyPrefix]

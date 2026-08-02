@@ -13,6 +13,7 @@ namespace SayonaraWildHeartsRandomizer;
 public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
+    public static MultiWorld multiWorld = null;
 
     private bool debug = true;
     private KeyboardShortcut deathKey = new(KeyCode.D);
@@ -33,6 +34,9 @@ public class Plugin : BaseUnityPlugin
         }
 
         SceneManager.sceneLoaded += OnSceneChange;
+
+        // TODO: Don't hardcode login info.
+        multiWorld = new MultiWorld("localhost", 38281, "Sayonara", "");
     }
 
     private void Update()
@@ -40,7 +44,7 @@ public class Plugin : BaseUnityPlugin
         // Debug key to trigger a death.
         if (deathKey.IsPressed() && debug)
         {
-
+            // TODO Trigger death
         }
     }
 

@@ -5,6 +5,7 @@ Building from source is only necessary if you want to contribute. If you want to
 1. Copy the `Sayonara Wild Hearts_Data` folder from the install directory to `Randomizer`.
 1. Open `Randomizer/SayonaraWildHeartsRandomizer.csproj` in Visual Studio and build it.
 1. The binaries will be in `Randomizer\bin\Debug\net35`.
+1. Get the latest 64-bit release of [c-wspp-websocket-sharp](https://github.com/black-sliver/c-wspp-websocket-sharp) and replace `websocket-sharp` with it.
 
 ## Building the Archipelago world
 1. Clone the [Archipelago repository](https://github.com/ArchipelagoMW/Archipelago).
