@@ -1,5 +1,6 @@
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
@@ -30,7 +31,22 @@ public class MultiWorld
             result = session.TryConnectAndLogin("Sayonara Wild Hearts", slot, ItemsHandlingFlags.AllItems, password: password);
             slotData = session.DataStorage.GetSlotData();
 
-            // TODO: Check version compatibility
+            // Check if we are compatible with the AP world version.
+            if (!slotData.ContainsKey("WorldVersion"))
+            {
+                throw new Exception("Slot data did not contain WorldVersion field");
+            }
+            JArray versionArray = (JArray)slotData["WorldVersion"];
+            Version worldVersion = new Version((int)versionArray[0], (int)versionArray[1], (int)versionArray[2]);
+
+            if (worldVersion.Major < Plugin.randomizerVersion.Major)
+            {
+                throw new Exception("AP world version " + worldVersion + " is incompatible with randomizer version " + Plugin.randomizerVersion + ". Please update the AP world and regenerate (or downgrade the randomizer).");
+            }
+            else if (worldVersion.Major > Plugin.randomizerVersion.Major || worldVersion.Minor > Plugin.randomizerVersion.Minor)
+            {
+                throw new Exception("AP world version " + worldVersion + " is newer than randomizer version " + Plugin.randomizerVersion + ". Please update the randomizer.");
+            }
         }
         catch (Exception e)
         {

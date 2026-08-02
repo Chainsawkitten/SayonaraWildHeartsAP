@@ -13,6 +13,7 @@ namespace SayonaraWildHeartsRandomizer;
 public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
+    public static Version randomizerVersion = new Version(MyPluginInfo.PLUGIN_VERSION);
     public static MultiWorld multiWorld = null;
 
     private bool debug = true;
