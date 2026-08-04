@@ -16,6 +16,7 @@ public class Plugin : BaseUnityPlugin
     public static Version randomizerVersion = new Version(MyPluginInfo.PLUGIN_VERSION);
     public static MultiWorld multiWorld = null;
     public static Locations locations = null;
+    public static Items items = null;
 
     private bool debug = true;
     private KeyboardShortcut deathKey = new(KeyCode.D);
@@ -40,10 +41,13 @@ public class Plugin : BaseUnityPlugin
         // TODO: Don't hardcode login info.
         multiWorld = new MultiWorld("localhost", 38281, "Sayonara", "");
         locations = new Locations(multiWorld);
+        items = new Items(multiWorld);
     }
 
     private void Update()
     {
+        items.Update();
+
         // Debug key to trigger a death.
         if (deathKey.IsPressed() && debug)
         {

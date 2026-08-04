@@ -1,6 +1,7 @@
 using HarmonyLib;
 using UnityEngine;
 using static SGGameLogic;
+using static SGMenuHandler;
 using static SGScoreHandler;
 
 namespace SayonaraWildHeartsRandomizer;
@@ -11,15 +12,100 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGMenuHandler_UpdateLevelPageIndicators(SGMenuHandler.MENUPAGE hMenuPage, SGMenuHandler __instance)
     {
-        Plugin.Logger.LogInfo("UpdateLevelPageIndicators");
+        if (!Plugin.multiWorld.connected)
+        {
+            return true;
+        }
+
+        // Update level select page indicators to match Archipelago state, rather than core game state.
+        if (hMenuPage.hLevelSelectPageIndicators == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < hMenuPage.hLevelSelectPageIndicators.Length; i++)
+        {
+            SGMenuItem sGMenuItem = hMenuPage.hLevelSelectPageIndicators[i];
+            if (Plugin.items.IsLevelLocked(i))
+            {
+                sGMenuItem.mainTextureOffset.x = 0.5f;
+            }
+            else if (SGFW.GameProfile.GetParam(19) > 0 && SGFW.GameProfile.GetLevelScore(i) >= SGFW.GameProfile.GetLevelWildScore(i))
+            {
+                sGMenuItem.mainTextureOffset.x = 0.75f;
+            }
+            else if (SGFW.GameProfile.IsLevelRankScoreFulfilled(i, 0))
+            {
+                sGMenuItem.mainTextureOffset.x = 0f;
+            }
+            else
+            {
+                sGMenuItem.mainTextureOffset.x = 0.25f;
+            }
+
+            sGMenuItem.mainTextureOffset.y = ((hMenuPage.nPageIndex - 1 != i) ? 0f : 0.5f);
+            sGMenuItem.SetTextureUVOffset(0f, 0f);
+        }
+
+        return false;
+    }
+
+    [HarmonyPatch(typeof(SGMenuHandler), "IsMenuPageLocked")]
+    [HarmonyPostfix]
+    public static void Postfix_SGMenuHandler_IsMenuPageLocked(int nPageIndex, SGMenuHandler __instance, ref bool __result)
+    {
+        if (!Plugin.multiWorld.connected)
+        {
+            return;
+        }
+
+        if (nPageIndex < 1 || nPageIndex > __instance.m_hMainMenuPages.Count - 1)
+        {
+            return;
+        }
+
+        // Lock/unlock levels based on received items.
+        __result = Plugin.items.IsLevelLocked(nPageIndex - 1);
+    }
+
+    [HarmonyPatch(typeof(SGMenuHandler), "ProcessMainMenu")]
+    [HarmonyPrefix]
+    public static bool Prefix_SGMenuHandler_ProcessMainMenu(float fDeltaTime, SGMenuHandler __instance)
+    {
+        // Fix crash when locking Claire de Lune, as the game didn't consider this scenario and accesses hLevelSelectPrevArrow, even though it's null.
+        if (__instance.m_hMainMenuPages[1].hLevelSelectPrevArrow == null)
+        {
+            __instance.m_hMainMenuPages[1].hLevelSelectPrevArrow = __instance.m_hMainMenuPages[1].hLevelSelectNextArrow;
+        }
+
         return true;
     }
 
-    [HarmonyPatch(typeof(SGMenuHandler), "UnlockNextLevel")]
+    [HarmonyPatch(typeof(SGMenuHandler), "GotoMenuViewState")]
     [HarmonyPrefix]
-    public static bool Prefix_SGMenuHandler_UnlockNextLevel(SGMenuHandler __instance)
+    public static bool Prefix_SGMenuHandler_GotoMenuViewState(SGMenuHandler.MENUVIEWSTATE nState, SGMenuHandler __instance)
     {
-        Plugin.Logger.LogInfo("UnlockNextLevel");
+        if (!Plugin.multiWorld.connected)
+        {
+            return true;
+        }
+
+        // When going from the menu to the level select, if the level the player was last on was locked, the game will
+        // fix this by decrementing the level index until it finds an unlocked one. With the randomizer, this may never
+        // happen if an earlier level has not been unlocked. Fix this by setting the level index to the last level so
+        // the decrementing strategy the game applies will work.
+        if (nState == MENUVIEWSTATE.TITLESCREEN_TO_MENU)
+        {
+            if (!(__instance.m_bFirstTimePrologUnlock || __instance.IsAlbumMode() || __instance.IsBonusMode()))
+            {
+                int levelIndex = __instance.GetLevelIndexFromUID(SGFW.GameProfile.GetParam(15));
+                if (__instance.IsMenuPageLocked(levelIndex))
+                {
+                    SGFW.GameProfile.SetParam(15, __instance.m_hMainMenuPages[23].hLevelDesc.LEVEL_UID);
+                }
+            }
+        }
+
         return true;
     }
 
@@ -27,11 +113,9 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGGameLogic_MainLogic_GotoGameViewState(GAMEVIEWSTATE nState, SGGameLogic.MainLogic __instance)
     {
+        // Detect deaths.
         switch (nState)
         {
-            case GAMEVIEWSTATE.LEVELEND:
-                Plugin.Logger.LogInfo("Level end");
-                break;
             case GAMEVIEWSTATE.IMPACT:
             case GAMEVIEWSTATE.FALL:
                 Plugin.Logger.LogInfo("Death");
@@ -47,15 +131,13 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGScoreHandler_ReportEvent(SCOREEVENT nEventID, int nUserData, bool bPopup, Vector3 vScreenPos, SGScoreHandler __instance)
     {
+        // Detect when the player picks up a coin or clears a level.
         int currentLevelIndex = SGFW.GameLogic().GetCurrentLevelIndex();
 
         switch (nEventID)
         {
             case SCOREEVENT.SECRETBANANA:
                 Plugin.locations.CollectCoin(currentLevelIndex, nUserData);
-                break;
-            case SCOREEVENT.RESPAWN:
-                Plugin.Logger.LogInfo("Respawn");
                 break;
             case SCOREEVENT.LEVELCLEAR:
                 Plugin.locations.ClearLevel(currentLevelIndex);
