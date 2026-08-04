@@ -72,10 +72,21 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGMenuHandler_ProcessMainMenu(float fDeltaTime, SGMenuHandler __instance)
     {
+        if (!Plugin.multiWorld.connected)
+        {
+            return true;
+        }
+
         // Fix crash when locking Claire de Lune, as the game didn't consider this scenario and accesses hLevelSelectPrevArrow, even though it's null.
         if (__instance.m_hMainMenuPages[1].hLevelSelectPrevArrow == null)
         {
             __instance.m_hMainMenuPages[1].hLevelSelectPrevArrow = __instance.m_hMainMenuPages[1].hLevelSelectNextArrow;
+        }
+
+        // Change the text describing how levels are unlocked.
+        for (int i = 1; i <= 23; i++)
+        {
+            __instance.m_hMainMenuPages[i].hLevelDesc.LEVEL_LOCKED_TEXT = "Receive Archipelago item to unlock";
         }
 
         return true;
