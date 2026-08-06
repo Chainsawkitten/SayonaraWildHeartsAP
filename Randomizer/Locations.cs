@@ -11,7 +11,6 @@ public class Locations
 {
     private MultiWorld multiWorld;
 
-
     private bool[] levelsCleared = new bool[23];
     private int[] levelScores = new int[23];
     private bool[,] coinsCollected = new bool[23, 5];
@@ -41,8 +40,7 @@ public class Locations
             levelScores[levelIndex] = score;
         }
 
-        // TODO Required rank.
-        int targetScore = 0;
+        int targetScore = SGFW.GameProfile.GetLevelRankScore(levelIndex, ((int)Plugin.options.RequiredRank) - 1);
         if (score < targetScore)
         {
             return;

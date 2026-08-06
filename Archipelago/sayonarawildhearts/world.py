@@ -44,6 +44,9 @@ class SayonaraWildHeartsWorld(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         return {
+            "Options": {
+                "RequiredRank": self.options.RequiredRank.value
+            },
             "Seed": self.multiworld.seed_name,
             "WorldVersion": self.world_version
         }

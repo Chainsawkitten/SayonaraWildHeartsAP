@@ -2,18 +2,22 @@ from dataclasses import dataclass
 
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
 
-class DummyOption(Toggle):
+class RequiredRank(Choice):
     """
-    Dummy option
+    Rank required to clear a level.
     """
-    display_name = "Dummy Option"
+    display_name = "Required Rank"
+    option_gold = 1
+    option_silver = 2
+    option_bronze = 3
+    default = 3
 
 @dataclass
 class SayonaraWildHeartsOptions(PerGameCommonOptions):
-    dummy_option: DummyOption
+    RequiredRank: RequiredRank
 
 sayonara_wild_hearts_option_groups = [
     OptionGroup("Game Options", [
-        DummyOption
+        RequiredRank
     ])
 ]

@@ -14,11 +14,12 @@ public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
     public static Version randomizerVersion = new Version(MyPluginInfo.PLUGIN_VERSION);
+    public static Options options = new();
     public static MultiWorld multiWorld = null;
     public static Locations locations = null;
     public static Items items = null;
 
-    private bool debug = true;
+    private bool debug = false;
     private KeyboardShortcut deathKey = new(KeyCode.D);
 
     private void Awake()
@@ -40,6 +41,7 @@ public class Plugin : BaseUnityPlugin
 
         // TODO: Don't hardcode login info.
         multiWorld = new MultiWorld("localhost", 38281, "Sayonara", "");
+        options.Load(multiWorld);
         locations = new Locations(multiWorld);
         items = new Items(multiWorld);
     }
