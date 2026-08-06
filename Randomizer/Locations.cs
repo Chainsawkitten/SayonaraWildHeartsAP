@@ -6,7 +6,9 @@ public class Locations
 {
     private MultiWorld multiWorld;
 
+
     private bool[] levelsCleared = new bool[23];
+    private int[] levelScores = new int[23];
     private bool[,] coinsCollected = new bool[23, 5];
 
     private const long levelMultiplier = 10;
@@ -16,9 +18,26 @@ public class Locations
         this.multiWorld = multiWorld;
     }
 
-    public void ClearLevel(int levelIndex)
+    public void ClearLevel(int levelIndex, int score)
     {
         if (!multiWorld.connected)
+        {
+            return;
+        }
+
+        if (levelIndex < 0 || levelIndex >= 23)
+        {
+            return;
+        }
+
+        if (score > levelScores[levelIndex])
+        {
+            levelScores[levelIndex] = score;
+        }
+
+        // TODO Required rank.
+        int targetScore = 0;
+        if (score < targetScore)
         {
             return;
         }
@@ -39,6 +58,16 @@ public class Locations
                 Plugin.Logger.LogError(e.ToString());
             }
         }
+    }
+
+    public int GetScore(int levelIndex)
+    {
+        if (levelIndex < 0 || levelIndex >= 23)
+        {
+            return 0;
+        }
+
+        return levelScores[levelIndex];
     }
 
     public void CollectCoin(int levelIndex, int coin)

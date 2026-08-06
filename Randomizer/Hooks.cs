@@ -117,6 +117,10 @@ public class Hooks
             }
         }
 
+        // Make sure we update the level score after getting a new score, even if we didn't get a new high score
+        // (compared to base game save file).
+        __instance.OnProfileProgressChange();
+
         return true;
     }
 
@@ -151,10 +155,22 @@ public class Hooks
                 Plugin.locations.CollectCoin(currentLevelIndex, nUserData);
                 break;
             case SCOREEVENT.LEVELCLEAR:
-                Plugin.locations.ClearLevel(currentLevelIndex);
+                Plugin.locations.ClearLevel(currentLevelIndex, __instance.m_nScore);
                 break;
         }
 
         return true;
+    }
+
+    [HarmonyPatch(typeof(SGGameProfile), "GetLevelScore")]
+    [HarmonyPostfix]
+    public static void Postfix_SGGameProfile_GetLevelScore(int nLevelIndex, SGGameProfile __instance, ref int __result)
+    {
+        if (!Plugin.multiWorld.connected || nLevelIndex < 0 || nLevelIndex >= 23)
+        {
+            return;
+        }
+
+        __result = Plugin.locations.GetScore(nLevelIndex);
     }
 }
