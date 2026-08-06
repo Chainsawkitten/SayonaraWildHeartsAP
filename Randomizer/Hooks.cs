@@ -181,4 +181,12 @@ public class Hooks
 
         __result = Plugin.locations.GetCoinsCollected(nLevelIndex);
     }
+
+    [HarmonyPatch(typeof(SGGameProfile), "Save")]
+    [HarmonyPrefix]
+    public static bool Prefix_SGGameProfile_Save(SGGameProfile __instance)
+    {
+        Plugin.locations.Save();
+        return true;
+    }
 }

@@ -1,4 +1,9 @@
 using Archipelago.MultiClient.Net.Exceptions;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace SayonaraWildHeartsRandomizer;
 
@@ -16,6 +21,7 @@ public class Locations
     public Locations(MultiWorld multiWorld)
     {
         this.multiWorld = multiWorld;
+        Load();
     }
 
     public void ClearLevel(int levelIndex, int score)
@@ -137,5 +143,80 @@ public class Locations
         }
 
         return coins;
+    }
+
+    private struct SaveData
+    {
+        public bool[] levelsCleared;
+        public int[] levelScores;
+        public bool[,] coinsCollected;
+    }
+
+    public void Save()
+    {
+        if (!Plugin.multiWorld.connected)
+        {
+            return;
+        }
+
+        try
+        {
+            FileStream fsOut = new(GetSaveFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+            SaveData saveData = new SaveData();
+
+            saveData.levelsCleared = levelsCleared;
+            saveData.levelScores = levelScores;
+            saveData.coinsCollected = coinsCollected;
+
+            string json = JsonConvert.SerializeObject(saveData);
+            StreamWriter swOut = new(fsOut);
+            swOut.Write(json);
+            swOut.Close();
+            fsOut.Close();
+        }
+        catch(Exception e)
+        {
+            Plugin.Logger.LogError("Failed to save file " + e.ToString());
+        }
+    }
+
+    public void Load()
+    {
+        if (!Plugin.multiWorld.connected)
+        {
+            return;
+        }
+
+        if (!File.Exists(GetSaveFileName()))
+        {
+            return;
+        }
+
+        try
+        {
+            FileStream fsIn = new(GetSaveFileName(), FileMode.Open, FileAccess.Read);
+            StreamReader srIn = new(fsIn);
+
+            SaveData saveData = JsonConvert.DeserializeObject<SaveData>(srIn.ReadToEnd());
+            levelsCleared = saveData.levelsCleared;
+            levelScores = saveData.levelScores;
+            coinsCollected = saveData.coinsCollected;
+
+            srIn.Close();
+            fsIn.Close();
+        }
+        catch (Exception e)
+        {
+            Plugin.Logger.LogError("Failed to parse json: " + e.ToString());
+            return;
+        }
+    }
+
+    public string GetSaveFileName()
+    {
+        string seed = multiWorld.slotData["Seed"].ToString();
+        string slot = multiWorld.session.ConnectionInfo.Slot.ToString();
+        return Application.persistentDataPath + "/AP_" + seed + "_" + slot + ".sav";
     }
 }

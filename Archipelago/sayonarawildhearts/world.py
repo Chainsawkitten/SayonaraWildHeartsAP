@@ -15,7 +15,7 @@ class SayonaraWildHeartsWebWorld(WebWorld):
 
 class SayonaraWildHeartsWorld(World):
     """
-    Sayonara Wild Hearts is a pop album/video game about sword fights, motorbikes, skateboards, dragons and heartbreak. Let's pop!
+    Sayonara Wild Hearts is a pop album/video game about sword fights, motorbikes, skateboards, tarot and heartbreak. Let's pop!
     """
 
     game = "Sayonara Wild Hearts"
@@ -44,5 +44,6 @@ class SayonaraWildHeartsWorld(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         return {
+            "Seed": self.multiworld.seed_name,
             "WorldVersion": self.world_version
         }
