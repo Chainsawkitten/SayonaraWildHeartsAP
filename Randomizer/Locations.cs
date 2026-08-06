@@ -60,6 +60,16 @@ public class Locations
         }
     }
 
+    public bool IsLevelCleared(int levelIndex)
+    {
+        if (levelIndex < 0 || levelIndex >= 23)
+        {
+            return false;
+        }
+
+        return levelsCleared[levelIndex];
+    }
+
     public int GetScore(int levelIndex)
     {
         if (levelIndex < 0 || levelIndex >= 23)
@@ -93,5 +103,39 @@ public class Locations
                 Plugin.Logger.LogError(e.ToString());
             }
         }
+    }
+
+    public int GetCoinsCollected(int levelIndex)
+    {
+        if (levelIndex < 0 || levelIndex >= 23)
+        {
+            return 0;
+        }
+
+        int coins = 0;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            coins |= coinsCollected[levelIndex, i] ? (1 << i) : 0;
+        }
+
+        return coins;
+    }
+
+    public int GetCoinsCollectedCount(int levelIndex)
+    {
+        if (levelIndex < 0 || levelIndex >= 23)
+        {
+            return 0;
+        }
+
+        int coins = 0;
+
+        for (int i = 0; i < 5; ++i)
+        {
+            coins += coinsCollected[levelIndex, i] ? 1 : 0;
+        }
+
+        return coins;
     }
 }

@@ -30,13 +30,9 @@ public class Hooks
             {
                 sGMenuItem.mainTextureOffset.x = 0.5f;
             }
-            else if (SGFW.GameProfile.GetParam(19) > 0 && SGFW.GameProfile.GetLevelScore(i) >= SGFW.GameProfile.GetLevelWildScore(i))
+            else if (Plugin.locations.IsLevelCleared(i) && Plugin.locations.GetCoinsCollectedCount(i) == __instance.m_hMainMenuPages[i + 1].hLevelDesc.LEVEL_BANANA_COUNT)
             {
                 sGMenuItem.mainTextureOffset.x = 0.75f;
-            }
-            else if (SGFW.GameProfile.IsLevelRankScoreFulfilled(i, 0))
-            {
-                sGMenuItem.mainTextureOffset.x = 0f;
             }
             else
             {
@@ -172,5 +168,17 @@ public class Hooks
         }
 
         __result = Plugin.locations.GetScore(nLevelIndex);
+    }
+
+    [HarmonyPatch(typeof(SGGameProfile), "GetLevelBananas")]
+    [HarmonyPostfix]
+    public static void Postfix_SGGameProfile_GetLevelBananas(int nLevelIndex, SGGameProfile __instance, ref int __result)
+    {
+        if (!Plugin.multiWorld.connected || nLevelIndex < 0 || nLevelIndex >= 23)
+        {
+            return;
+        }
+
+        __result = Plugin.locations.GetCoinsCollected(nLevelIndex);
     }
 }
