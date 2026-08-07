@@ -61,6 +61,7 @@ public class Plugin : BaseUnityPlugin
     private void Update()
     {
         items.Update();
+        locations.Update();
 
         // Debug key to trigger a death.
         if (deathKey.IsPressed() && debug)

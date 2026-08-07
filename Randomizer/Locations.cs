@@ -16,11 +16,37 @@ public class Locations
     private bool[,] coinsCollected = new bool[23, 5];
 
     private const long levelMultiplier = 10;
+    private bool goaled = false;
 
     public Locations(MultiWorld multiWorld)
     {
         this.multiWorld = multiWorld;
         Load();
+    }
+
+    public void Update()
+    {
+        CheckGoal();
+    }
+
+    public void CheckGoal()
+    {
+        if (!multiWorld.connected || goaled)
+        {
+            return;
+        }
+
+        for (int i = 0; i < 23; i++)
+        {
+            if (!IsLevelCleared(i))
+            {
+                return;
+            }
+        }
+
+        Plugin.Logger.LogInfo("Goal completed.");
+        goaled = true;
+        multiWorld.session.SetGoalAchieved();
     }
 
     public void ClearLevel(int levelIndex, int score)
@@ -211,7 +237,7 @@ public class Locations
         }
     }
 
-    public string GetSaveFileName()
+    private string GetSaveFileName()
     {
         string seed = multiWorld.slotData["Seed"].ToString();
         string slot = multiWorld.session.ConnectionInfo.Slot.ToString();
