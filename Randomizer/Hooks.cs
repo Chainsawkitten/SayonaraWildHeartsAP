@@ -158,6 +158,23 @@ public class Hooks
         return true;
     }
 
+    [HarmonyPatch(typeof(SGScoreHandler), "Reset")]
+    [HarmonyPostfix]
+    public static void Postfix_SGScoreHandler_Reset(bool bReturnToMenu, bool bClearScore, SGScoreHandler __instance)
+    {
+        if (!Plugin.multiWorld.connected)
+        {
+            return;
+        }
+
+        int currentLevelIndex = SGFW.GameLogic().GetCurrentLevelIndex();
+        if (!bReturnToMenu && bClearScore && currentLevelIndex >= 0 && currentLevelIndex < 23)
+        {
+            __instance.m_nScore = Plugin.items.GetStartingScore();
+            __instance.m_nCheckpointScore = Plugin.items.GetStartingScore();
+        }
+    }
+
     [HarmonyPatch(typeof(SGGameProfile), "GetLevelScore")]
     [HarmonyPostfix]
     public static void Postfix_SGGameProfile_GetLevelScore(int nLevelIndex, SGGameProfile __instance, ref int __result)
@@ -187,6 +204,6 @@ public class Hooks
     public static bool Prefix_SGGameProfile_Save(SGGameProfile __instance)
     {
         Plugin.locations.Save();
-        return true;
+        return !Plugin.multiWorld.connected;
     }
 }

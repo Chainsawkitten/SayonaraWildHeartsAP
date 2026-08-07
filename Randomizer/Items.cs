@@ -7,6 +7,9 @@ public class Items
     private MultiWorld multiWorld;
 
     private bool[] levelsUnlocked = new bool[23];
+    private int bonusPoints = 0;
+
+    const long ITEM_ID_10_BONUS_POINTS = 50;
 
     public Items(MultiWorld multiWorld)
     {
@@ -41,6 +44,16 @@ public class Items
             {
                 levelsUnlocked[itemInfo.ItemId - 1] = true;
             }
+
+            if (itemInfo.ItemId == ITEM_ID_10_BONUS_POINTS)
+            {
+                bonusPoints += 10;
+            }
         }
+    }
+
+    public int GetStartingScore()
+    {
+        return bonusPoints;
     }
 }

@@ -8,7 +8,7 @@ from .levels import levels
 if TYPE_CHECKING:
     from .world import SayonaraWildHeartsWorld
 
-FILLER_NAME = "Wild Heart"
+FILLER_NAME = "10 Bonus Points"
 
 ITEM_NAME_TO_ID : Dict[str, int] = {
     FILLER_NAME: 50,
