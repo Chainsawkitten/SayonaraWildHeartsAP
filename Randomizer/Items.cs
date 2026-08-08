@@ -49,6 +49,16 @@ public class Items
             {
                 bonusPoints += 10;
             }
+
+            // Update page indicators to show any newly unlocked level.
+            if (SGFW.IsGameLogicPresent())
+            {
+                SGMenuHandler menuHandler = ((SGGameLogic.MainLogic)SGFW.GameLogic()).m_hMenuHandler;
+                if (menuHandler != null)
+                {
+                    menuHandler.UpdateAllPageIndicators();
+                }
+            }
         }
     }
 
