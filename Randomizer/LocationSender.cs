@@ -1,5 +1,4 @@
 using Archipelago.MultiClient.Net.Exceptions;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 

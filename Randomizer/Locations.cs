@@ -1,7 +1,5 @@
-using Archipelago.MultiClient.Net.Exceptions;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
