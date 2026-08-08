@@ -10,6 +10,7 @@ namespace SayonaraWildHeartsRandomizer;
 public class Locations
 {
     private MultiWorld multiWorld;
+    private LocationSender locationSender;
 
     private bool[] levelsCleared = new bool[23];
     private int[] levelScores = new int[23];
@@ -21,6 +22,7 @@ public class Locations
     public Locations(MultiWorld multiWorld)
     {
         this.multiWorld = multiWorld;
+        this.locationSender = new LocationSender(multiWorld);
         Load();
     }
 
@@ -36,6 +38,7 @@ public class Locations
             return;
         }
 
+        // The goal is getting the required rank in all levels.
         for (int i = 0; i < 23; i++)
         {
             if (!IsLevelCleared(i))
@@ -76,17 +79,9 @@ public class Locations
         {
             Plugin.Logger.LogInfo("Level clear " + levelIndex.ToString());
 
-            try
-            {
-                long locationID = (levelIndex + 1) * levelMultiplier;
-                multiWorld.session.Locations.CompleteLocationChecks([locationID]);
-                levelsCleared[levelIndex] = true;
-            }
-            catch (ArchipelagoSocketClosedException e)
-            {
-                Plugin.Logger.LogError("Tried to send check but server connection was closed.");
-                Plugin.Logger.LogError(e.ToString());
-            }
+            long locationID = (levelIndex + 1) * levelMultiplier;
+            locationSender.SendLocationCheckAsync(locationID);
+            levelsCleared[levelIndex] = true;
         }
     }
 
@@ -121,17 +116,9 @@ public class Locations
         {
             Plugin.Logger.LogInfo("Collected secret banana " + levelIndex.ToString() + " - " + coin.ToString());
 
-            try
-            {
-                long locationID = (levelIndex + 1) * levelMultiplier + coin + 1;
-                multiWorld.session.Locations.CompleteLocationChecks([locationID]);
-                coinsCollected[levelIndex, coin] = true;
-            }
-            catch (ArchipelagoSocketClosedException e)
-            {
-                Plugin.Logger.LogError("Tried to send check but server connection was closed.");
-                Plugin.Logger.LogError(e.ToString());
-            }
+            long locationID = (levelIndex + 1) * levelMultiplier + coin + 1;
+            locationSender.SendLocationCheckAsync(locationID);
+            coinsCollected[levelIndex, coin] = true;
         }
     }
 
