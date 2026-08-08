@@ -172,7 +172,8 @@ public class Locations
 
         try
         {
-            FileStream fsOut = new(GetSaveFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            FileStream fsOut = new(GetSaveFileName(), FileMode.OpenOrCreate, FileAccess.Write);
+            fsOut.SetLength(0);
 
             SaveData saveData = new SaveData();
 
