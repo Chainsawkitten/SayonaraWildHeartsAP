@@ -10,7 +10,7 @@ class RequiredRank(Choice):
     option_gold = 1
     option_silver = 2
     option_bronze = 3
-    default = 3
+    default = 1
 
 @dataclass
 class SayonaraWildHeartsOptions(PerGameCommonOptions):

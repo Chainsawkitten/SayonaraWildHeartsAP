@@ -21,9 +21,6 @@ public class Plugin : BaseUnityPlugin
     public static Locations locations = null;
     public static Items items = null;
 
-    private bool debug = false;
-    private KeyboardShortcut deathKey = new(KeyCode.D);
-
     private struct APInfo
     {
         public string hostname;
@@ -47,8 +44,6 @@ public class Plugin : BaseUnityPlugin
             Logger.LogError(e.Message);
         }
 
-        SceneManager.sceneLoaded += OnSceneChange;
-
         APInfo apInfo = GetAPInfo();
 
         multiWorld = new MultiWorld(apInfo.hostname, apInfo.port, apInfo.slot, apInfo.password);
@@ -61,48 +56,6 @@ public class Plugin : BaseUnityPlugin
     {
         items.Update();
         locations.Update();
-
-        // Debug key to trigger a death.
-        if (deathKey.IsPressed() && debug)
-        {
-            // TODO Trigger death
-        }
-    }
-
-    private void OnSceneChange(Scene scene, LoadSceneMode mode)
-    {
-        Logger.LogMessage("Scene changed: " + scene.name);
-
-        /*Logger.LogMessage("Game objects");
-        GameObject[] rootObjects = scene.GetRootGameObjects();
-        foreach (GameObject gameObject in rootObjects)
-        {
-            PrintGameObject(gameObject);
-        }*/
-    }
-
-    private void PrintGameObject(GameObject gameObject, int depth = 0)
-    {
-        string details = "";
-        for (int i = 0; i < depth; i++)
-        {
-            details += " ";
-        }
-        details += gameObject.name;
-        details += " - ";
-
-        MonoBehaviour[] scripts = gameObject.GetComponents<MonoBehaviour>();
-        foreach (MonoBehaviour script in scripts)
-        {
-            details += script.GetScriptClassName() + ", ";
-        }
-
-        Logger.LogMessage(details);
-
-        for (int i = 0; i < gameObject.transform.childCount; i++)
-        {
-            PrintGameObject(gameObject.transform.GetChild(i).gameObject, depth + 1);
-        }
     }
 
     private string GetAPInfoFileName()
