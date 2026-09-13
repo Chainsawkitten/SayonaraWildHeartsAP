@@ -1,4 +1,6 @@
 using Archipelago.MultiClient.Net.Exceptions;
+using Archipelago.MultiClient.Net.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -11,10 +13,13 @@ public class LocationSender
     private static Mutex mutex = new Mutex();
     private static Queue<long> locations = new Queue<long>();
     private Thread thread;
+    private MessageDisplay messageDisplay;
+    private Dictionary<long, string> locationMessages = new Dictionary<long, string>();
 
-    public LocationSender(MultiWorld multiWorld)
+    public LocationSender(MultiWorld multiWorld, MessageDisplay messageDisplay)
     {
         LocationSender.multiWorld = multiWorld;
+        this.messageDisplay = messageDisplay;
 
         thread = new Thread(ProcessChecks);
         thread.IsBackground = true;
@@ -26,6 +31,13 @@ public class LocationSender
         mutex.WaitOne();
         locations.Enqueue(locationID);
         mutex.ReleaseMutex();
+
+        string message = "Found AP item";
+        if (locationMessages.ContainsKey(locationID))
+        {
+            message = locationMessages[locationID];
+        }
+        messageDisplay.QueueMessage(message);
     }
 
     private static void ProcessChecks()
@@ -61,6 +73,27 @@ public class LocationSender
             }
 
             Thread.Sleep(10);
+        }
+    }
+
+    public void ScoutLocations(long[] ids)
+    {
+        try
+        {
+            multiWorld.session.Locations.ScoutLocationsAsync(ScoutLocationCallback, ids);
+        }
+        catch (Exception e)
+        {
+            Plugin.Logger.LogError(e.ToString());
+        }
+    }
+
+    private void ScoutLocationCallback(Dictionary<long, ScoutedItemInfo> itemInfos)
+    {
+        foreach (KeyValuePair<long, ScoutedItemInfo> itemInfo in itemInfos)
+        {
+            string message = "Sent " + itemInfo.Value.ItemName + " to " + itemInfo.Value.Player.Name;
+            locationMessages[itemInfo.Key] = message;
         }
     }
 }

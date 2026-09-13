@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -13,15 +15,29 @@ public class Locations
     private SaveFile saveFile;
 
     private const long levelMultiplier = 10;
+    private const int levelCount = 23;
+    private const int coinCount = 5;
     private bool goaled = false;
 
     public Locations(MultiWorld multiWorld, MessageDisplay messageDisplay, SaveFile saveFile)
     {
         this.multiWorld = multiWorld;
         this.messageDisplay = messageDisplay;
-        this.locationSender = new LocationSender(multiWorld);
+        locationSender = new LocationSender(multiWorld, messageDisplay);
         this.saveFile = saveFile;
         this.saveFile.Load();
+
+        // Scout all locations to get messages to display when collecting them.
+        List<long> ids = new List<long>();
+        for (int levelIndex = 0; levelIndex < levelCount; levelIndex++)
+        {
+            ids.Add(GetLevelClearLocationID(levelIndex));
+
+            for (int coin = 0; coin < coinCount; coin++) {
+                ids.Add(GetCoinCollectedLocationID(levelIndex, coin));
+            }
+        }
+        locationSender.ScoutLocations(ids.ToArray());
     }
 
     public void Update()
@@ -37,7 +53,7 @@ public class Locations
         }
 
         // The goal is getting the required rank in all levels.
-        for (int i = 0; i < 23; i++)
+        for (int i = 0; i < levelCount; i++)
         {
             if (!IsLevelCleared(i))
             {
@@ -58,7 +74,7 @@ public class Locations
             return;
         }
 
-        if (levelIndex < 0 || levelIndex >= 23)
+        if (levelIndex < 0 || levelIndex >= levelCount)
         {
             return;
         }
@@ -77,16 +93,14 @@ public class Locations
         if (!saveFile.levelsCleared[levelIndex])
         {
             Plugin.Logger.LogInfo("Level clear " + levelIndex.ToString());
-
-            long locationID = (levelIndex + 1) * levelMultiplier;
-            locationSender.SendLocationCheckAsync(locationID);
+            locationSender.SendLocationCheckAsync(GetLevelClearLocationID(levelIndex));
             saveFile.levelsCleared[levelIndex] = true;
         }
     }
 
     public bool IsLevelCleared(int levelIndex)
     {
-        if (levelIndex < 0 || levelIndex >= 23)
+        if (levelIndex < 0 || levelIndex >= levelCount)
         {
             return false;
         }
@@ -96,7 +110,7 @@ public class Locations
 
     public int GetScore(int levelIndex)
     {
-        if (levelIndex < 0 || levelIndex >= 23)
+        if (levelIndex < 0 || levelIndex >= levelCount)
         {
             return 0;
         }
@@ -114,23 +128,21 @@ public class Locations
         if (!saveFile.coinsCollected[levelIndex, coin])
         {
             Plugin.Logger.LogInfo("Collected secret banana " + levelIndex.ToString() + " - " + coin.ToString());
-
-            long locationID = (levelIndex + 1) * levelMultiplier + coin + 1;
-            locationSender.SendLocationCheckAsync(locationID);
+            locationSender.SendLocationCheckAsync(GetCoinCollectedLocationID(levelIndex, coin));
             saveFile.coinsCollected[levelIndex, coin] = true;
         }
     }
 
     public int GetCoinsCollected(int levelIndex)
     {
-        if (levelIndex < 0 || levelIndex >= 23)
+        if (levelIndex < 0 || levelIndex >= levelCount)
         {
             return 0;
         }
 
         int coins = 0;
 
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < coinCount; ++i)
         {
             coins |= saveFile.coinsCollected[levelIndex, i] ? (1 << i) : 0;
         }
@@ -140,18 +152,28 @@ public class Locations
 
     public int GetCoinsCollectedCount(int levelIndex)
     {
-        if (levelIndex < 0 || levelIndex >= 23)
+        if (levelIndex < 0 || levelIndex >= levelCount)
         {
             return 0;
         }
 
         int coins = 0;
 
-        for (int i = 0; i < 5; ++i)
+        for (int i = 0; i < coinCount; ++i)
         {
             coins += saveFile.coinsCollected[levelIndex, i] ? 1 : 0;
         }
 
         return coins;
+    }
+
+    private long GetLevelClearLocationID(int levelIndex)
+    {
+        return (levelIndex + 1) * levelMultiplier;
+    }
+
+    private long GetCoinCollectedLocationID(int levelIndex, int coin)
+    {
+        return (levelIndex + 1) * levelMultiplier + coin + 1;
     }
 }
