@@ -18,6 +18,7 @@ public class Plugin : BaseUnityPlugin
     public static Version randomizerVersion = new Version(MyPluginInfo.PLUGIN_VERSION);
     public static Options options = new();
     public static MultiWorld multiWorld = null;
+    public static SaveFile saveFile = null;
     public static Locations locations = null;
     public static Items items = null;
     public static MessageDisplay messageDisplay = null;
@@ -50,8 +51,9 @@ public class Plugin : BaseUnityPlugin
         messageDisplay = new MessageDisplay();
         multiWorld = new MultiWorld(apInfo.hostname, apInfo.port, apInfo.slot, apInfo.password, messageDisplay);
         options.Load(multiWorld);
-        locations = new Locations(multiWorld, messageDisplay);
         items = new Items(multiWorld, messageDisplay);
+        saveFile = new SaveFile(multiWorld);
+        locations = new Locations(multiWorld, messageDisplay, saveFile);
     }
 
     private void Update()

@@ -10,20 +10,18 @@ public class Locations
     private MultiWorld multiWorld;
     private LocationSender locationSender;
     private MessageDisplay messageDisplay;
-
-    private bool[] levelsCleared = new bool[23];
-    private int[] levelScores = new int[23];
-    private bool[,] coinsCollected = new bool[23, 5];
+    private SaveFile saveFile;
 
     private const long levelMultiplier = 10;
     private bool goaled = false;
 
-    public Locations(MultiWorld multiWorld, MessageDisplay messageDisplay)
+    public Locations(MultiWorld multiWorld, MessageDisplay messageDisplay, SaveFile saveFile)
     {
         this.multiWorld = multiWorld;
         this.messageDisplay = messageDisplay;
         this.locationSender = new LocationSender(multiWorld);
-        Load();
+        this.saveFile = saveFile;
+        this.saveFile.Load();
     }
 
     public void Update()
@@ -65,9 +63,9 @@ public class Locations
             return;
         }
 
-        if (score > levelScores[levelIndex])
+        if (score > saveFile.levelScores[levelIndex])
         {
-            levelScores[levelIndex] = score;
+            saveFile.levelScores[levelIndex] = score;
         }
 
         int targetScore = SGFW.GameProfile.GetLevelRankScore(levelIndex, ((int)Plugin.options.RequiredRank) - 1);
@@ -76,13 +74,13 @@ public class Locations
             return;
         }
 
-        if (!levelsCleared[levelIndex])
+        if (!saveFile.levelsCleared[levelIndex])
         {
             Plugin.Logger.LogInfo("Level clear " + levelIndex.ToString());
 
             long locationID = (levelIndex + 1) * levelMultiplier;
             locationSender.SendLocationCheckAsync(locationID);
-            levelsCleared[levelIndex] = true;
+            saveFile.levelsCleared[levelIndex] = true;
         }
     }
 
@@ -93,7 +91,7 @@ public class Locations
             return false;
         }
 
-        return levelsCleared[levelIndex];
+        return saveFile.levelsCleared[levelIndex];
     }
 
     public int GetScore(int levelIndex)
@@ -103,7 +101,7 @@ public class Locations
             return 0;
         }
 
-        return levelScores[levelIndex];
+        return saveFile.levelScores[levelIndex];
     }
 
     public void CollectCoin(int levelIndex, int coin)
@@ -113,13 +111,13 @@ public class Locations
             return;
         }
 
-        if (!coinsCollected[levelIndex, coin])
+        if (!saveFile.coinsCollected[levelIndex, coin])
         {
             Plugin.Logger.LogInfo("Collected secret banana " + levelIndex.ToString() + " - " + coin.ToString());
 
             long locationID = (levelIndex + 1) * levelMultiplier + coin + 1;
             locationSender.SendLocationCheckAsync(locationID);
-            coinsCollected[levelIndex, coin] = true;
+            saveFile.coinsCollected[levelIndex, coin] = true;
         }
     }
 
@@ -134,7 +132,7 @@ public class Locations
 
         for (int i = 0; i < 5; ++i)
         {
-            coins |= coinsCollected[levelIndex, i] ? (1 << i) : 0;
+            coins |= saveFile.coinsCollected[levelIndex, i] ? (1 << i) : 0;
         }
 
         return coins;
@@ -151,85 +149,9 @@ public class Locations
 
         for (int i = 0; i < 5; ++i)
         {
-            coins += coinsCollected[levelIndex, i] ? 1 : 0;
+            coins += saveFile.coinsCollected[levelIndex, i] ? 1 : 0;
         }
 
         return coins;
-    }
-
-    private struct SaveData
-    {
-        public bool[] levelsCleared;
-        public int[] levelScores;
-        public bool[,] coinsCollected;
-    }
-
-    public void Save()
-    {
-        if (!Plugin.multiWorld.connected)
-        {
-            return;
-        }
-
-        try
-        {
-            FileStream fsOut = new(GetSaveFileName(), FileMode.OpenOrCreate, FileAccess.Write);
-            fsOut.SetLength(0);
-
-            SaveData saveData = new SaveData();
-
-            saveData.levelsCleared = levelsCleared;
-            saveData.levelScores = levelScores;
-            saveData.coinsCollected = coinsCollected;
-
-            string json = JsonConvert.SerializeObject(saveData);
-            StreamWriter swOut = new(fsOut);
-            swOut.Write(json);
-            swOut.Close();
-            fsOut.Close();
-        }
-        catch(Exception e)
-        {
-            Plugin.Logger.LogError("Failed to save file " + e.ToString());
-        }
-    }
-
-    public void Load()
-    {
-        if (!Plugin.multiWorld.connected)
-        {
-            return;
-        }
-
-        if (!File.Exists(GetSaveFileName()))
-        {
-            return;
-        }
-
-        try
-        {
-            FileStream fsIn = new(GetSaveFileName(), FileMode.Open, FileAccess.Read);
-            StreamReader srIn = new(fsIn);
-
-            SaveData saveData = JsonConvert.DeserializeObject<SaveData>(srIn.ReadToEnd());
-            levelsCleared = saveData.levelsCleared;
-            levelScores = saveData.levelScores;
-            coinsCollected = saveData.coinsCollected;
-
-            srIn.Close();
-            fsIn.Close();
-        }
-        catch (Exception e)
-        {
-            Plugin.Logger.LogError("Failed to parse json: " + e.ToString());
-            return;
-        }
-    }
-
-    private string GetSaveFileName()
-    {
-        string seed = multiWorld.slotData["Seed"].ToString();
-        string slot = multiWorld.session.ConnectionInfo.Slot.ToString();
-        return Application.persistentDataPath + "/AP_" + seed + "_" + slot + ".sav";
     }
 }

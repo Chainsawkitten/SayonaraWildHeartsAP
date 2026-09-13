@@ -203,7 +203,7 @@ public class Hooks
     [HarmonyPrefix]
     public static bool Prefix_SGGameProfile_Save(SGGameProfile __instance)
     {
-        Plugin.locations.Save();
+        Plugin.saveFile.Save();
         return !Plugin.multiWorld.connected;
     }
 
