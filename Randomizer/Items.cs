@@ -5,15 +5,17 @@ namespace SayonaraWildHeartsRandomizer;
 public class Items
 {
     private MultiWorld multiWorld;
+    private MessageDisplay messageDisplay;
 
     private bool[] levelsUnlocked = new bool[23];
     private int bonusPoints = 0;
 
     const long ITEM_ID_10_BONUS_POINTS = 50;
 
-    public Items(MultiWorld multiWorld)
+    public Items(MultiWorld multiWorld, MessageDisplay messageDisplay)
     {
         this.multiWorld = multiWorld;
+        this.messageDisplay = messageDisplay;
     }
 
     public bool IsLevelLocked(int levelIndex)
@@ -37,8 +39,9 @@ public class Items
         {
             ItemInfo itemInfo = multiWorld.session.Items.DequeueItem();
 
-            // TODO Show some kind of in-game message.
-            Plugin.Logger.LogInfo("Received " + itemInfo.ItemName + " from " + itemInfo.Player);
+            string receivedMessage = "Received " + itemInfo.ItemName + " from " + itemInfo.Player;
+            messageDisplay.QueueMessage(receivedMessage);
+            Plugin.Logger.LogInfo(receivedMessage);
 
             if (itemInfo.ItemId >= 1 && itemInfo.ItemId <= 23)
             {

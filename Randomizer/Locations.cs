@@ -9,6 +9,7 @@ public class Locations
 {
     private MultiWorld multiWorld;
     private LocationSender locationSender;
+    private MessageDisplay messageDisplay;
 
     private bool[] levelsCleared = new bool[23];
     private int[] levelScores = new int[23];
@@ -17,9 +18,10 @@ public class Locations
     private const long levelMultiplier = 10;
     private bool goaled = false;
 
-    public Locations(MultiWorld multiWorld)
+    public Locations(MultiWorld multiWorld, MessageDisplay messageDisplay)
     {
         this.multiWorld = multiWorld;
+        this.messageDisplay = messageDisplay;
         this.locationSender = new LocationSender(multiWorld);
         Load();
     }
@@ -48,6 +50,7 @@ public class Locations
         Plugin.Logger.LogInfo("Goal completed.");
         goaled = true;
         multiWorld.session.SetGoalAchieved();
+        messageDisplay.QueueMessage("Victory!");
     }
 
     public void ClearLevel(int levelIndex, int score)

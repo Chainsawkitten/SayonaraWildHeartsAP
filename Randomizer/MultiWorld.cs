@@ -11,10 +11,12 @@ public class MultiWorld
     public ArchipelagoSession session;
     public bool connected = false;
     public Dictionary<string, object> slotData;
+    private MessageDisplay messageDisplay;
 
-    public MultiWorld(string hostname, int port, string slot, string password)
+    public MultiWorld(string hostname, int port, string slot, string password, MessageDisplay messageDisplay)
     {
         Plugin.Logger.LogMessage("Connecting to Archipelago server...");
+        this.messageDisplay = messageDisplay;
 
         if (hostname != "localhost")
         {
@@ -59,6 +61,7 @@ public class MultiWorld
             connected = true;
 
             Plugin.Logger.LogMessage("Connected to Archipelago server as " + slot);
+            messageDisplay.QueueMessage("Connected to Archipelago");
         }
         else
         {
@@ -76,6 +79,7 @@ public class MultiWorld
             connected = false;
 
             Plugin.Logger.LogError(errorMessage);
+            messageDisplay.QueueMessage("Failed to connect to Archipelago. Check APInfo.json");
 
             return; // Did not connect, show the user the contents of `errorMessage`
         }

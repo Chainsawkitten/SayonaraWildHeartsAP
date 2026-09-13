@@ -206,4 +206,29 @@ public class Hooks
         Plugin.locations.Save();
         return !Plugin.multiWorld.connected;
     }
+
+    // We've repurposed the "Game Center" menu option text for our own message display.
+    [HarmonyPatch(typeof(SGMenuText), "OnUpdate", [typeof(float), typeof(float), typeof(bool), typeof(bool)])]
+    [HarmonyPrefix]
+    public static bool Prefix_SGMenuText_OnUpdate(float fDeltaTime, float fItemBeatScale, bool bShowInProgress, bool bHideInProgress, SGMenuText __instance)
+    {
+        if (__instance.textTag == "Game Center")
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    [HarmonyPatch(typeof(SGMenuText), "SetColor")]
+    [HarmonyPrefix]
+    public static bool Prefix_SGMenuText_SetColor(SGMenuText __instance)
+    {
+        if (__instance.textTag == "Game Center")
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

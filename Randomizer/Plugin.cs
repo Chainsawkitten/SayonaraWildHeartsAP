@@ -20,6 +20,7 @@ public class Plugin : BaseUnityPlugin
     public static MultiWorld multiWorld = null;
     public static Locations locations = null;
     public static Items items = null;
+    public static MessageDisplay messageDisplay = null;
 
     private struct APInfo
     {
@@ -46,16 +47,19 @@ public class Plugin : BaseUnityPlugin
 
         APInfo apInfo = GetAPInfo();
 
-        multiWorld = new MultiWorld(apInfo.hostname, apInfo.port, apInfo.slot, apInfo.password);
+        messageDisplay = new MessageDisplay();
+        multiWorld = new MultiWorld(apInfo.hostname, apInfo.port, apInfo.slot, apInfo.password, messageDisplay);
         options.Load(multiWorld);
-        locations = new Locations(multiWorld);
-        items = new Items(multiWorld);
+        locations = new Locations(multiWorld, messageDisplay);
+        items = new Items(multiWorld, messageDisplay);
     }
 
     private void Update()
     {
         items.Update();
         locations.Update();
+
+        messageDisplay.Update(Time.deltaTime);
     }
 
     private string GetAPInfoFileName()
