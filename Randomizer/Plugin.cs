@@ -51,9 +51,9 @@ public class Plugin : BaseUnityPlugin
         messageDisplay = new MessageDisplay();
         multiWorld = new MultiWorld(apInfo.hostname, apInfo.port, apInfo.slot, apInfo.password, messageDisplay);
         options.Load(multiWorld);
-        items = new Items(multiWorld, messageDisplay);
         saveFile = new SaveFile(multiWorld);
         locations = new Locations(multiWorld, messageDisplay, saveFile);
+        items = new Items(multiWorld, messageDisplay, saveFile);
     }
 
     private void Update()

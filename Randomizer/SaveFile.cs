@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -12,17 +13,35 @@ public class SaveFile
     public bool[] levelsCleared = new bool[23];
     public int[] levelScores = new int[23];
     public bool[,] coinsCollected = new bool[23, 5];
+    private Dictionary<long, int> itemsReceived = new Dictionary<long, int>();
+    private Dictionary<long, int> previouslyReceivedItems = new Dictionary<long, int>();
 
     private struct SaveData
     {
         public bool[] levelsCleared;
         public int[] levelScores;
         public bool[,] coinsCollected;
+        public Dictionary<long, int> itemsReceived;
     }
 
     public SaveFile(MultiWorld multiWorld)
     {
         this.multiWorld = multiWorld;
+    }
+
+    public bool ReceiveItem(long itemID)
+    {
+        if (!itemsReceived.ContainsKey(itemID))
+        {
+            itemsReceived[itemID] = 0;
+        }
+
+        if (!previouslyReceivedItems.ContainsKey(itemID))
+        {
+            previouslyReceivedItems[itemID] = 0;
+        }
+
+        return ++itemsReceived[itemID] > previouslyReceivedItems[itemID];
     }
 
     public void Save()
@@ -42,6 +61,7 @@ public class SaveFile
             saveData.levelsCleared = levelsCleared;
             saveData.levelScores = levelScores;
             saveData.coinsCollected = coinsCollected;
+            saveData.itemsReceived = itemsReceived;
 
             string json = JsonConvert.SerializeObject(saveData);
             StreamWriter swOut = new(fsOut);
@@ -76,6 +96,7 @@ public class SaveFile
             levelsCleared = saveData.levelsCleared;
             levelScores = saveData.levelScores;
             coinsCollected = saveData.coinsCollected;
+            previouslyReceivedItems = saveData.itemsReceived;
 
             srIn.Close();
             fsIn.Close();

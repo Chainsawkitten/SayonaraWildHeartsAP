@@ -6,16 +6,18 @@ public class Items
 {
     private MultiWorld multiWorld;
     private MessageDisplay messageDisplay;
+    private SaveFile saveFile;
 
     private bool[] levelsUnlocked = new bool[23];
     private int bonusPoints = 0;
 
     const long ITEM_ID_10_BONUS_POINTS = 50;
 
-    public Items(MultiWorld multiWorld, MessageDisplay messageDisplay)
+    public Items(MultiWorld multiWorld, MessageDisplay messageDisplay, SaveFile saveFile)
     {
         this.multiWorld = multiWorld;
         this.messageDisplay = messageDisplay;
+        this.saveFile = saveFile;
     }
 
     public bool IsLevelLocked(int levelIndex)
@@ -40,7 +42,10 @@ public class Items
             ItemInfo itemInfo = multiWorld.session.Items.DequeueItem();
 
             string receivedMessage = "Received " + itemInfo.ItemName + " from " + itemInfo.Player;
-            messageDisplay.QueueMessage(receivedMessage);
+            if (saveFile.ReceiveItem(itemInfo.ItemId))
+            {
+                messageDisplay.QueueMessage(receivedMessage);
+            }
             Plugin.Logger.LogInfo(receivedMessage);
 
             if (itemInfo.ItemId >= 1 && itemInfo.ItemId <= 23)
