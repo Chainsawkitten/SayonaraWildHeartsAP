@@ -44,7 +44,10 @@ public class Items
             string receivedMessage = "Received " + itemInfo.ItemName + " from " + itemInfo.Player;
             if (saveFile.ReceiveItem(itemInfo.ItemId))
             {
-                messageDisplay.QueueMessage(receivedMessage);
+                if (itemInfo.Player != multiWorld.session.ConnectionInfo.Slot)
+                {
+                    messageDisplay.QueueMessage(receivedMessage);
+                }
             }
             Plugin.Logger.LogInfo(receivedMessage);
 

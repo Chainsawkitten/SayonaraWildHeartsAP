@@ -3,6 +3,7 @@ using Archipelago.MultiClient.Net.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using static System.Collections.Specialized.BitVector32;
 
 namespace SayonaraWildHeartsRandomizer;
 
@@ -93,6 +94,10 @@ public class LocationSender
         foreach (KeyValuePair<long, ScoutedItemInfo> itemInfo in itemInfos)
         {
             string message = "Sent " + itemInfo.Value.ItemName + " to " + itemInfo.Value.Player.Name;
+            if (itemInfo.Value.Player.Slot == multiWorld.session.ConnectionInfo.Slot)
+            {
+                message = "Found your " + itemInfo.Value.ItemName;
+            }
             locationMessages[itemInfo.Key] = message;
         }
     }
