@@ -60,7 +60,7 @@ public class Plugin : BaseUnityPlugin
         items.Update();
         locations.Update();
 
-        messageDisplay.Update(Time.deltaTime);
+        messageDisplay.Update();
     }
 
     private string GetAPInfoFileName()

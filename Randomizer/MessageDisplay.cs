@@ -22,13 +22,13 @@ public class MessageDisplay
         messageQueue.Enqueue(message);
     }
 
-    public void Update(float deltaTime)
+    public void Update()
     {
         PerformOneTimeChanges();
 
         if (text != null)
         {
-            messageTime += deltaTime;
+            messageTime += Time.unscaledDeltaTime;
 
             if (messageTime < fadeTime)
             {
@@ -53,7 +53,7 @@ public class MessageDisplay
                 }
             }
 
-            UpdateText(deltaTime);
+            UpdateText();
         }
     }
 
@@ -93,7 +93,7 @@ public class MessageDisplay
         }
     }
 
-    public void UpdateText(float deltaTime)
+    public void UpdateText()
     {
         bool activeInHierarchy = text.m_hInst.hGameObject.activeInHierarchy;
         if (activeInHierarchy)
@@ -107,7 +107,7 @@ public class MessageDisplay
             sGCharacterMesh.m_nRenderLayer = text.m_hInst.hGameObject.layer;
             sGCharacterMesh.m_bVisible = activeInHierarchy && text.m_fCurrentAlpha > 0f;
 
-            text.m_fFloatingTextTime = Time.time;
+            text.m_fFloatingTextTime = Time.unscaledTime;
             float fFloatingTextTime = text.m_fFloatingTextTime;
             float delay = (float)i * text.floatingDelayBetweenChars;
             sGCharacterMesh.m_hTransitionData.vPosition.x = sGCharacterMesh.m_vInitialPos.x + Mathf.Sin((fFloatingTextTime - delay * 2f) * text.floatingFrequency.x) * text.floatingAmplitude.x;
