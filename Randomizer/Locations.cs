@@ -1,10 +1,3 @@
-using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
-
 namespace SayonaraWildHeartsRandomizer;
 
 public class Locations
@@ -28,16 +21,9 @@ public class Locations
         this.saveFile.Load();
 
         // Scout all locations to get messages to display when collecting them.
-        List<long> ids = new List<long>();
-        for (int levelIndex = 0; levelIndex < levelCount; levelIndex++)
-        {
-            ids.Add(GetLevelClearLocationID(levelIndex));
+        locationSender.ScoutLocations();
 
-            for (int coin = 0; coin < coinCount; coin++) {
-                ids.Add(GetCoinCollectedLocationID(levelIndex, coin));
-            }
-        }
-        locationSender.ScoutLocations(ids.ToArray());
+        ResendMissingChecks();
     }
 
     public void Update()
@@ -175,5 +161,35 @@ public class Locations
     private long GetCoinCollectedLocationID(int levelIndex, int coin)
     {
         return (levelIndex + 1) * levelMultiplier + coin + 1;
+    }
+
+    private void ResendMissingChecks()
+    {
+        // Resend missing location checks in case of disconnect.
+        for (int levelIndex = 0; levelIndex < levelCount; levelIndex++)
+        {
+            if (saveFile.levelsCleared[levelIndex])
+            {
+                long id = GetLevelClearLocationID(levelIndex);
+                if (!multiWorld.session.Locations.AllLocationsChecked.Contains(id))
+                {
+                    Plugin.Logger.LogInfo("Resent level clear " + levelIndex.ToString());
+                    locationSender.SendLocationCheckAsync(id, false);
+                }
+            }
+
+            for (int coin = 0; coin < coinCount; coin++)
+            {
+                if (saveFile.coinsCollected[levelIndex, coin])
+                {
+                    long id = GetCoinCollectedLocationID(levelIndex, coin);
+                    if (!multiWorld.session.Locations.AllLocationsChecked.Contains(id))
+                    {
+                        Plugin.Logger.LogInfo("Resent collecting coin " + levelIndex.ToString() + " - " + coin.ToString());
+                        locationSender.SendLocationCheckAsync(id, false);
+                    }
+                }
+            }
+        }
     }
 }

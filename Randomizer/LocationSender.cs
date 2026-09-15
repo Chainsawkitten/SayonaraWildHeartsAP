@@ -2,8 +2,8 @@ using Archipelago.MultiClient.Net.Exceptions;
 using Archipelago.MultiClient.Net.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using static System.Collections.Specialized.BitVector32;
 
 namespace SayonaraWildHeartsRandomizer;
 
@@ -27,18 +27,21 @@ public class LocationSender
         thread.Start();
     }
          
-    public void SendLocationCheckAsync(long locationID)
+    public void SendLocationCheckAsync(long locationID, bool displayMessage = true)
     {
         mutex.WaitOne();
         locations.Enqueue(locationID);
         mutex.ReleaseMutex();
 
-        string message = "Found AP item";
-        if (locationMessages.ContainsKey(locationID))
+        if (displayMessage)
         {
-            message = locationMessages[locationID];
+            string message = "Found AP item";
+            if (locationMessages.ContainsKey(locationID))
+            {
+                message = locationMessages[locationID];
+            }
+            messageDisplay.QueueMessage(message);
         }
-        messageDisplay.QueueMessage(message);
     }
 
     private static void ProcessChecks()
@@ -77,11 +80,11 @@ public class LocationSender
         }
     }
 
-    public void ScoutLocations(long[] ids)
+    public void ScoutLocations()
     {
         try
         {
-            multiWorld.session.Locations.ScoutLocationsAsync(ScoutLocationCallback, ids);
+            multiWorld.session.Locations.ScoutLocationsAsync(ScoutLocationCallback, multiWorld.session.Locations.AllLocations.ToArray());
         }
         catch (Exception e)
         {
