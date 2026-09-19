@@ -129,7 +129,7 @@ public class Hooks
         {
             case GAMEVIEWSTATE.IMPACT:
             case GAMEVIEWSTATE.FALL:
-                Plugin.Logger.LogInfo("Death");
+                Plugin.deathLink.OnDeath();
                 break;
             default:
                 break;

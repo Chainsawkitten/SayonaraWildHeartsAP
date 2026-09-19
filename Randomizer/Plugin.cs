@@ -21,6 +21,7 @@ public class Plugin : BaseUnityPlugin
     public static Locations locations = null;
     public static Items items = null;
     public static MessageDisplay messageDisplay = null;
+    public static DeathLink deathLink = null;
 
     private struct APInfo
     {
@@ -53,13 +54,13 @@ public class Plugin : BaseUnityPlugin
         saveFile = new SaveFile(multiWorld);
         locations = new Locations(multiWorld, messageDisplay, saveFile);
         items = new Items(multiWorld, messageDisplay, saveFile);
+        deathLink = new DeathLink(multiWorld, messageDisplay, options);
     }
 
     private void Update()
     {
         items.Update();
         locations.Update();
-
         messageDisplay.Update();
     }
 

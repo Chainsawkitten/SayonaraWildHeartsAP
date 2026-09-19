@@ -45,7 +45,9 @@ class SayonaraWildHeartsWorld(World):
     def fill_slot_data(self) -> Mapping[str, Any]:
         return {
             "Options": {
-                "RequiredRank": self.options.RequiredRank.value
+                "RequiredRank": self.options.RequiredRank.value,
+                "EnableDeathLink": self.options.EnableDeathLink.value,
+                "DeathLinkAmnesty": self.options.DeathLinkAmnesty.value
             },
             "Seed": self.multiworld.seed_name,
             "WorldVersion": self.world_version
