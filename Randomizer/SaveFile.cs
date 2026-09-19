@@ -110,7 +110,7 @@ public class SaveFile
 
     private string GetSaveFileName()
     {
-        string seed = multiWorld.slotData["Seed"].ToString();
+        string seed = multiWorld.session.RoomState.Seed;
         string slot = multiWorld.session.ConnectionInfo.Slot.ToString();
         return Application.persistentDataPath + "/AP_" + seed + "_" + slot + ".sav";
     }

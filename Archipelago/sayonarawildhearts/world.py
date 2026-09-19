@@ -49,6 +49,5 @@ class SayonaraWildHeartsWorld(World):
                 "EnableDeathLink": self.options.EnableDeathLink.value,
                 "DeathLinkAmnesty": self.options.DeathLinkAmnesty.value
             },
-            "Seed": self.multiworld.seed_name,
             "WorldVersion": self.world_version
         }
