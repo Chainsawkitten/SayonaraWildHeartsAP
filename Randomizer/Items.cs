@@ -22,6 +22,12 @@ public class Items
 
     public bool IsLevelLocked(int levelIndex)
     {
+        // Lock Album Arcade and YOLO Arcade when connected to Archipelago.
+        if (levelIndex == 23 || levelIndex == 24)
+        {
+            return true;
+        }
+
         if (levelIndex < 0 || levelIndex > 22)
         {
             return false;

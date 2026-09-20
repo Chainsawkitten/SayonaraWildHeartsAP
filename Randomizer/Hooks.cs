@@ -84,6 +84,10 @@ public class Hooks
         {
             __instance.m_hMainMenuPages[i].hLevelDesc.LEVEL_LOCKED_TEXT = "Receive Archipelago item to unlock";
         }
+        for (int i = 24; i <= 25; i++)
+        {
+            __instance.m_hMainMenuPages[i].hLevelDesc.LEVEL_LOCKED_TEXT = "Locked when connected to Archipelago";
+        }
 
         return true;
     }
