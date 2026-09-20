@@ -15,6 +15,9 @@ public class MessageDisplay
     private float messageTime = 100f;
     private float alpha = 1.0f;
 
+    private const int UILayer = 5;
+    private const int UI2Layer = 19;
+
     private Queue<string> messageQueue = new Queue<string>();
 
     public void QueueMessage(string message)
@@ -78,9 +81,6 @@ public class MessageDisplay
                     GameObject gameCenterText = gameCenterTransform.gameObject;
                     text = gameCenterText.GetComponent<SGMenuText>();
 
-                    // Change the layer to the UI layer, so it will display everywhere.
-                    gameCenterText.layer = 5;
-
                     colorCurve = SGFW.GameUtils.CreateColorCurve(SGFW.GameConfig.SCORECFG.secretBananaPopupRamp);
 
                     oneTimeChangesDone = true;
@@ -101,10 +101,18 @@ public class MessageDisplay
             SGMenuHandler.Instance.QueueVisibleText(text);
         }
 
+        // Change the layer to the UI layer.
+        // In The World We Knew, the UI layer is displayed on the VR headset, and we need to use the UI2 layer instead.
+        int activeLayer = UILayer;
+        if (SGFW.IsGameLogicPresent() && SGFW.GameLogic().IsInGameLoop() && SGFW.GameLogic().IsActiveClipLevel2D())
+        {
+            activeLayer = UI2Layer;
+        }
+
         for (int i = 0; i < text.m_hCharacterMeshes.Count; i++)
         {
             SGCharacterMesh sGCharacterMesh = text.m_hCharacterMeshes[i];
-            sGCharacterMesh.m_nRenderLayer = text.m_hInst.hGameObject.layer;
+            sGCharacterMesh.m_nRenderLayer = activeLayer;
             sGCharacterMesh.m_bVisible = activeInHierarchy && text.m_fCurrentAlpha > 0f;
 
             text.m_fFloatingTextTime = Time.unscaledTime;
